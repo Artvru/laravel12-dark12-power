@@ -4,6 +4,9 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+ use App\Models\Product;
+ use Illuminate\Support\Facades\DB;
+
 // จุดที่ 1: แก้ไขตรงนี้! เปลี่ยนจาก 'welcome' ให้ดึงหน้าแรกไฟล์ลูก 'home' ของเรามาโชว์
 Route::get('/', function () {
     return view('home');
@@ -146,3 +149,35 @@ Route::get('/category/sport', [CategoryController::class, "sport"]);
 Route::get('/category/politic', [CategoryController::class, "politic"]);
 Route::get('/category/entertain', [CategoryController::class, "entertain"]);
 Route::get('/category/auto', [CategoryController::class, "auto"]);
+
+
+//----------------------------------------------
+
+
+
+Route::get('query/sql', function () {
+    $products = DB::select("SELECT * FROM products");
+    // $products = DB::select("SELECT * FROM products WHERE price > 100");
+    return view('query-test', compact('products'));
+});
+
+Route::get('query/builder', function () {
+    $products = DB::table('products')->get();
+    // $products = DB::table('products')->where('price', '>', 100)->get();
+    return view('query-test', compact('products'));
+});
+
+Route::get('query/orm', function () {
+    $products = Product::get();
+    // $products = Product::where('price', '>', 100)->get();
+    return view('query-test', compact('products'));
+});
+
+Route::get('product/form', function () {
+    // ใส่ไว้กัน bugs
+})->name("product.form");
+
+Route::get('barchart', function () {    
+    return view('barchart');
+})->name('barchart');
+
