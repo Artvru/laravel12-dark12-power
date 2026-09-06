@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\Route;
  use App\Models\Product;
  use Illuminate\Support\Facades\DB;
 
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+
+
 // จุดที่ 1: แก้ไขตรงนี้! เปลี่ยนจาก 'welcome' ให้ดึงหน้าแรกไฟล์ลูก 'home' ของเรามาโชว์
 Route::get('/', function () {
     return view('home');
@@ -173,11 +179,98 @@ Route::get('query/orm', function () {
     return view('query-test', compact('products'));
 });
 
-Route::get('product/form', function () {
-    // ใส่ไว้กัน bugs
-})->name("product.form");
+
 
 Route::get('barchart', function () {    
     return view('barchart');
 })->name('barchart');
 
+
+//ถ้ามีอroute เก่าให้ลบทิ้งถ้ามันซ้ำกันกับคอมเม้นนี้
+Route::get('product-index', function () {
+    $products = Product::get();
+    return view('query-test', compact('products'));
+})->name("product.index");
+
+
+Route::get('product-form', function () {    
+    return view('product-form');
+})->name("product.form");
+//--------------------------------------END--------------------------------
+
+//-----------------------
+Route::post('/product-submit', function (Request $request) {    
+    $data = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'required|string',
+        'price' => 'required|numeric|min:0',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);    
+
+    // ตรวจสอบว่ามีการอัปโหลดรูปภาพ
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('uploads', 'public');
+        $url = Storage::url($imagePath);
+        $data["image"] =$url;
+    }
+
+    // บันทึกข้อมูลในฐานข้อมูล
+    Product::create($data);
+
+    return redirect()->route('product.index')->with('success', 'เพิ่มสินค้าแล้ว!');
+})->name('product.submit');
+
+//----ยาวมากระวังให้ดี คืออะไรก็ไม่รู้ 
+use App\Models\Weight;
+
+// ==================== WEIGHT ROUTES (CRUD) ====================
+
+// 1. แสดงรายการน้ำหนัก
+Route::get('weight-index', function () {
+    $weights = Weight::orderBy('date', 'desc')->get();
+    return view('weight-index', compact('weights'));
+})->name("weight.index");
+
+// 2. แสดงฟอร์มเพิ่มน้ำหนัก
+Route::get('weight-form', function () {
+    return view('weight-form');
+})->name("weight.form");
+
+// 3. บันทึกน้ำหนัก (POST)
+Route::post('/weight-submit', function (Request $request) {
+    $data = $request->validate([
+        'date' => 'required|date',
+        'weight' => 'required|numeric|min:0|max:999.99',
+        'notes' => 'nullable|string|max:255',
+    ]);
+
+    Weight::create($data);
+    return redirect()->route('weight.index')->with('success', 'เพิ่มข้อมูลน้ำหนักแล้ว!');
+})->name('weight.submit');
+
+// 4. แสดงฟอร์มแก้ไข
+Route::get('weight-edit/{id}', function ($id) {
+    $weight = Weight::findOrFail($id);
+    return view('weight-form', compact('weight'));
+})->name("weight.edit");
+
+// 5. อัปเดตน้ำหนัก (PUT)
+Route::put('/weight-update/{id}', function (Request $request, $id) {
+    $weight = Weight::findOrFail($id);
+    
+    $data = $request->validate([
+        'date' => 'required|date',
+        'weight' => 'required|numeric|min:0|max:999.99',
+        'notes' => 'nullable|string|max:255',
+    ]);
+
+    $weight->update($data);
+    return redirect()->route('weight.index')->with('success', 'อัปเดตข้อมูลแล้ว!');
+})->name('weight.update');
+
+// 6. ลบน้ำหนัก (DELETE)
+Route::delete('/weight-delete/{id}', function ($id) {
+    $weight = Weight::findOrFail($id);
+    $weight->delete();
+    return redirect()->route('weight.index')->with('success', 'ลบข้อมูลแล้ว!');
+})->name('weight.delete');

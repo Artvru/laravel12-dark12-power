@@ -9,10 +9,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
-</head>
 
 <body>
     <div class="container my-5">
+        <!-- Success Message -->
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <h1 class="text-center mb-4">Product List</h1>
 
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
@@ -42,7 +49,6 @@
             bottom: 50px;
             right: 50px;
             z-index: 9999;
-            /* ให้ปุ่มลอยอยู่เหนือทุกวัตถุ */
             background-color: #007bff;
             line-height: 1;
             color: white;
@@ -55,13 +61,14 @@
             align-items: center;
             justify-content: center;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align : center;
+            text-align: center;
         }
 
         .floating-btn:hover {
             background-color: #0056b3;
         }
     </style>
+
     <!-- ปุ่ม + ที่ลอยอยู่ -->
     <a href="{{ route('product.form') }}">
         <div class="floating-btn py-auto pb-2">
@@ -69,12 +76,5 @@
         </div>
     </a>
 
-
-
-    <!-- Bootstrap JS (Optional) -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-    </script>
-</body>
-
-</html>
