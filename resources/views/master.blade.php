@@ -29,7 +29,7 @@
     </main>
 
     <footer class="bg-gray-950 text-center p-4 mt-10 text-gray-500 text-sm border-t border-gray-800">
-        2026 นครดาร์ก 12 พาวเวอร์.
+        2026 ดาร์ก 12 พาวเวอร์.
     </footer>
 
 </body>
