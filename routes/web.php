@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AboutMeController;
 use Illuminate\Support\Facades\Route;
 
  use App\Models\Product;
@@ -225,52 +226,61 @@ use App\Models\Weight;
 
 // ==================== WEIGHT ROUTES (CRUD) ====================
 
-// 1. แสดงรายการน้ำหนัก
-Route::get('weight-index', function () {
-    $weights = Weight::orderBy('date', 'desc')->get();
-    return view('weight-index', compact('weights'));
-})->name("weight.index");
+Route::middleware('auth')->group(function () {
+    // 1. แสดงรายการน้ำหนัก
+    Route::get('weights', function () {
+        $weights = Weight::orderBy('date', 'desc')->get();
+        return view('weight-index', compact('weights'));
+    })->name("weight.index");
 
-// 2. แสดงฟอร์มเพิ่มน้ำหนัก
-Route::get('weight-form', function () {
-    return view('weight-form');
-})->name("weight.form");
+    // 2. แสดงฟอร์มเพิ่มน้ำหนัก
+    Route::get('weight-form', function () {
+        return view('weight-form');
+    })->name("weight.form");
 
-// 3. บันทึกน้ำหนัก (POST)
-Route::post('/weight-submit', function (Request $request) {
-    $data = $request->validate([
-        'date' => 'required|date',
-        'weight' => 'required|numeric|min:0|max:999.99',
-        'notes' => 'nullable|string|max:255',
-    ]);
+    // 3. บันทึกน้ำหนัก (POST)
+    Route::post('/weight-submit', function (Request $request) {
+        $data = $request->validate([
+            'date' => 'required|date',
+            'weight' => 'required|numeric|min:0|max:999.99',
+            'notes' => 'nullable|string|max:255',
+        ]);
 
-    Weight::create($data);
-    return redirect()->route('weight.index')->with('success', 'เพิ่มข้อมูลน้ำหนักแล้ว!');
-})->name('weight.submit');
+        Weight::create($data);
+        return redirect()->route('weight.index')->with('success', 'เพิ่มข้อมูลน้ำหนักแล้ว!');
+    })->name('weight.submit');
 
-// 4. แสดงฟอร์มแก้ไข
-Route::get('weight-edit/{id}', function ($id) {
-    $weight = Weight::findOrFail($id);
-    return view('weight-form', compact('weight'));
-})->name("weight.edit");
+    // 4. แสดงฟอร์มแก้ไข
+    Route::get('weight-edit/{id}', function ($id) {
+        $weight = Weight::findOrFail($id);
+        return view('weight-form', compact('weight'));
+    })->name("weight.edit");
 
-// 5. อัปเดตน้ำหนัก (PUT)
-Route::put('/weight-update/{id}', function (Request $request, $id) {
-    $weight = Weight::findOrFail($id);
-    
-    $data = $request->validate([
-        'date' => 'required|date',
-        'weight' => 'required|numeric|min:0|max:999.99',
-        'notes' => 'nullable|string|max:255',
-    ]);
+    // 5. อัปเดตน้ำหนัก (PUT)
+    Route::put('/weight-update/{id}', function (Request $request, $id) {
+        $weight = Weight::findOrFail($id);
+        
+        $data = $request->validate([
+            'date' => 'required|date',
+            'weight' => 'required|numeric|min:0|max:999.99',
+            'notes' => 'nullable|string|max:255',
+        ]);
 
-    $weight->update($data);
-    return redirect()->route('weight.index')->with('success', 'อัปเดตข้อมูลแล้ว!');
-})->name('weight.update');
+        $weight->update($data);
+        return redirect()->route('weight.index')->with('success', 'อัปเดตข้อมูลแล้ว!');
+    })->name('weight.update');
 
-// 6. ลบน้ำหนัก (DELETE)
-Route::delete('/weight-delete/{id}', function ($id) {
-    $weight = Weight::findOrFail($id);
-    $weight->delete();
-    return redirect()->route('weight.index')->with('success', 'ลบข้อมูลแล้ว!');
-})->name('weight.delete');
+    // 6. ลบน้ำหนัก (DELETE)
+    Route::delete('/weight-delete/{id}', function ($id) {
+        $weight = Weight::findOrFail($id);
+        $weight->delete();
+        return redirect()->route('weight.index')->with('success', 'ลบข้อมูลแล้ว!');
+    })->name('weight.delete');
+});
+
+// ==================== ABOUT ME ROUTES ====================
+Route::get('/about-me', [AboutMeController::class, 'index'])->name('about-me.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/about-me/edit', [AboutMeController::class, 'edit'])->name('about-me.edit');
+    Route::post('/about-me', [AboutMeController::class, 'update'])->name('about-me.update');
+});
