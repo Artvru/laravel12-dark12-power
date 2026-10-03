@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AboutMeController;
+use App\Http\Controllers\CustomerController;
 use Illuminate\Support\Facades\Route;
 
  use App\Models\Product;
@@ -27,6 +28,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Customer management is available to authenticated users (Laravel Breeze).
+Route::middleware('auth')->group(function () {
+    Route::get('/customers/export', [CustomerController::class, 'export'])->name('customers.export');
+    Route::resource('customers', CustomerController::class);
+    Route::post('/customers/{customer}/purchases', [CustomerController::class, 'storePurchase'])->name('customers.purchases.store');
+    Route::delete('/customers/{customer}/purchases/{purchaseHistory}', [CustomerController::class, 'destroyPurchase'])->name('customers.purchases.destroy');
 });
 
 require __DIR__.'/auth.php';
